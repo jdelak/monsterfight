@@ -1,0 +1,7 @@
+{% extends 'base.html.twig' %}
+{% block topScripts %}
+ <script>
+        const access_token = '{{ access_token }}';
+        const streamer =  '{{ user.login }}';
+    </script>
+{% endblock %}

@@ -37,7 +37,8 @@ const config = {
         GameScene,
         RankingScene,
         SettingsScene
-    ]
+    ],
+   
 };
 
 export default new Game(config);

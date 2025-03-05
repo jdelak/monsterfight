@@ -24,7 +24,7 @@ export default class LobbyScene extends Phaser.Scene {
         this.add.text(this.cameras.main.centerX, 100, 'Lobby', { font: '64px Arial', color: '#ffffff' }).setOrigin(0.5);
         let players = this.players;
         //Display PlayerList
-        console.log(players)
+        
 
         //Start Game Btn
         const startBtn  = this.add.image(0,0, 'button').setOrigin(0.5); 

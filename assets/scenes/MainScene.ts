@@ -10,7 +10,7 @@ export default class MainScene extends Phaser.Scene {
 
     preload() {
         this.load.image('background1', 'assets/images/pokemon_background.png');
-        this.load.image('logo', 'assets/images/pokéfight.png');
+        this.load.image('logo', 'assets/images/pokefight.png');
         this.load.image('button', 'assets/images/round-rectangle-white.png');
     }
 

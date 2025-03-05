@@ -8,6 +8,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use TwitchApi\TwitchApi;
 use App\Services\TwitchService;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Validator\Constraints\Json;
 
 final class GameController extends AbstractController
 {
@@ -20,7 +22,7 @@ final class GameController extends AbstractController
     }
 
     #[Route('/lobby', name: 'lobby')]
-    public function createLobby(Request $request): Response
+    public function createLobby(Request $request): JsonResponse
     {
         $session = $request->getSession();
         $twitch_client_id = $this->getParameter('client_id');
@@ -31,11 +33,14 @@ final class GameController extends AbstractController
         $twitch_access_token = $session->get('access_token');
         $user = $this->twitchService->getTwitchUser($twitch_access_token, $twitchApi);
 
-        return $this->render('game/lobby.html.twig', [
+        $datas = [
             'client_id' => $twitch_client_id,
             'user' => $user,
             'access_token' => $twitch_access_token
-        ]);
+        ];
+
+        return $this->json($datas);
+       
     }
 
     #[Route('/settings', name: 'settings')]

@@ -36,7 +36,7 @@ export default class MainScene extends Phaser.Scene {
                 createGameText.setColor('#ffffff');
             }, 
         )
-        .on('pointerdown', () => this.scene.start('LobbyScene',{ player1: this.streamerName }))
+        .on('pointerdown', () => this.scene.start('LobbyScene'))
         .on('pointerout', () => {
             createGameText.setColor('#000000');
             createGameBtn.clearTint();

@@ -1,12 +1,16 @@
-import Phaser from 'phaser';
+import Phaser, { Scene } from 'phaser';
+import { getTwitchChat, getStreamerData } from '../utils/Twitch';
 
 export default class LobbyScene extends Phaser.Scene {
 
     public players:string[];
+    private totalPlayers:number;
+    private streamer:any;
 
     constructor() {
         super({ key: 'LobbyScene' });
         this.players = [];
+        this.totalPlayers = 0;
     }
 
     preload() {
@@ -16,13 +20,15 @@ export default class LobbyScene extends Phaser.Scene {
 
     //data contains the streamer login name
     init(data:any){
-        this.players = [data.player1];
+        this.players = [];
     }
 
     create() {
+       
         this.add.image(0,0,'background1').setOrigin(0,0);
         this.add.text(this.cameras.main.centerX, 100, 'Lobby', { font: '64px Arial', color: '#ffffff' }).setOrigin(0.5);
         let players = this.players;
+        
         //Display PlayerList
         
 
@@ -32,7 +38,11 @@ export default class LobbyScene extends Phaser.Scene {
         const startContainer = this.add.container(this.cameras.main.width - 300, 800,[startBtn, startText]);
         startContainer.setSize(400,82)
         .setInteractive()
-        .on('pointerdown', () => this.scene.start('GameInitScene'))
+        .on('pointerdown', () => {
+            if(this.totalPlayers === 8){
+                this.scene.start('GameInitScene')
+            }
+        })
         .on('pointermove', () => {
                 startBtn.setTint(0x000000);
                 startText.setColor('#ffffff');
@@ -61,15 +71,46 @@ export default class LobbyScene extends Phaser.Scene {
             backBtnText.setColor('#000000');
             backBtn.clearTint();
             
-        }); 
-
+        });
+        this.fetchStreamerData();
     }
 
     update(){
-
+        if(this.streamer){
+            getTwitchChat(this.streamer).then(player => {
+                this.addPlayerToPlayerList(player);
+            }).catch(error => {
+                console.error("Erreur lors de la récupération des données du joueur:", error);
+            });
+        }
+       
     }
 
-    addPlayerToPlayerList(playerName:string){
-
+    addPlayerToPlayerList(player:[string, string]){
+        if(this.totalPlayers < 8){
+            if(this.players.includes(player[0]) == false){
+                this.players.push(player[0]); 
+                this.add.text(this.cameras.main.centerX, 200 + (80 * this.totalPlayers),  player[0],{ font: '32px Arial', color: '#ffffff' }).setOrigin(0.5);
+                this.totalPlayers++;
+                
+            }
+        } 
     }
+
+    async fetchStreamerData(){
+        try {
+            this.streamer = await getStreamerData();
+            // Maintenant que les données du streamer sont disponibles, vous pouvez appeler getTwitchChat
+            getTwitchChat(this.streamer).then(player => {
+                this.addPlayerToPlayerList(player);
+            }).catch(error => {
+                console.error("Erreur lors de la récupération des données du joueur:", error);
+            });
+        } catch (error) {
+            console.error("Erreur lors de la récupération des données du streamer:", error);
+        }
+    };
+
+    
+
 }

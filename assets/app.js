@@ -3,7 +3,7 @@ import  { Game } from 'phaser';
 import  Preloader  from './scenes/Preloader';
 import  MainScene  from './scenes/MainScene';
 import  LobbyScene  from  './scenes/LobbyScene';
-import  GameInitScene  from  './scenes/GameInitScene';
+import  HeroSelectionScene  from  './scenes/HeroSelectionScene';
 import  GamePrepScene  from  './scenes/GamePrepScene';
 import  GameScene  from  './scenes/GameScene';
 import  RankingScene  from  './scenes/RankingScene';
@@ -32,7 +32,7 @@ const config = {
         // Preloader,
         MainScene,
         LobbyScene,
-        GameInitScene,
+        HeroSelectionScene,
         GamePrepScene,
         GameScene,
         RankingScene,

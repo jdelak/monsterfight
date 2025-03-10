@@ -13,6 +13,8 @@ export default class LobbyScene extends Phaser.Scene {
         super({ key: 'LobbyScene' });
         this.players = [];
         this.totalPlayers = 0;
+        //For tests
+        // this.totalPlayers = 8;
     }
 
     preload() {

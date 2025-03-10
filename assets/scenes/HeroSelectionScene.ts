@@ -22,15 +22,19 @@ export default class HeroSelectionScene extends Phaser.Scene {
 
     preload() {
         this.load.image('background', 'assets/images/pokemon_background.png');
+        this.load.pack('pokemon_icons', 'assets/datas/pokemon.json', 'pokemon_icons');
+        this.load.pack('types', 'assets/datas/type.json', 'types');
     }
 
     init(data:any){
         this.players = data.players;
+        // For testing
+        // this.players = ['Jay_Delac', 'Nightbot', 'Player3', 'Player4', 'Players5', 'Players6', 'Players7', 'Players8'];
     }
 
     create() {
         this.add.image(0, 0, 'background1').setOrigin(0, 0);
-        this.add.text(this.cameras.main.centerX, 100, 'Choose your hero! (type !1, !2 or !3)', { font: '48px Arial', color: '#ffffff' }).setOrigin(0.5);
+        this.add.text(this.cameras.main.centerX, 64, 'Choose your pokémon! (type !1, !2 or !3 in streamer chat)', { font: '40px Arial', color: '#ffffff' }).setOrigin(0.5);
 
         const selectedTypes = getRandomTypes(9);
 
@@ -38,10 +42,15 @@ export default class HeroSelectionScene extends Phaser.Scene {
             const heroesForPlayer = getHeroesForPlayer(selectedTypes);
             this.playerHeroes[player] = heroesForPlayer;
 
-            this.add.text(200, 200 + index * 80, `${player}:`, { font: '32px Arial', color: '#ffffff' });
+            this.add.text(200, 200 + index * 92, `${player} :`, { font: '24px Arial', color: '#ffffff' }).setOrigin(0.5);;
 
             heroesForPlayer.forEach((hero, heroIndex) => {
-                this.add.text(350 + heroIndex * 300, 200 + index * 80, `${heroIndex + 1}. ${hero.name} (${hero.type})`, { font: '24px Arial', color: '#ffffff' });
+                // this.add.text(350 + heroIndex * 300, 200 + index * 80, `${heroIndex + 1}. ${hero.name} (${hero.type})`, { font: '24px Arial', color: '#ffffff' });
+                let typeIcon = this.add.image((450 + heroIndex * 256) - 80, 200 + index * 92,`${hero.type}`).setOrigin(0.5);
+                let pokeIcon = this.add.image(450 + heroIndex * 256, 200 + index * 92,`${hero.name}_icon`).setOrigin(0.5);
+                typeIcon.scale = 0.5;
+                pokeIcon.scale = 0.25;
+                
             });
         });
 
@@ -56,6 +65,15 @@ export default class HeroSelectionScene extends Phaser.Scene {
                 console.error("Erreur lors de la récupération des données du joueur:", error);
             });
         }
+
+        //show selected hero
+        this.finalPlayers.forEach((player, index) => {
+            if(player.hero){
+                const selected = this.add.image(1600, 200 + index * 92,`${player.hero.name}_icon`).setOrigin(0.5);
+                selected.scale = 0.25;
+            }
+        });
+        
     }
 
     addHeroToPlayer(player: [string, string]) {

@@ -1,0 +1,99 @@
+{
+    "pokemon_icons":{
+        "path":"assets/images/pokemon/icons",
+        "files": [
+            {
+                "type": "image",
+                "key": "bulbasaur_icon",
+                "url": "bulbasaur.png"
+            },
+            {
+                "type": "image",
+                "key": "charmander_icon",
+                "url": "charmander.png"
+            },
+            {
+                "type": "image",
+                "key": "squirtle_icon",
+                "url": "squirtle.png"
+            },
+            {
+                "type": "image",
+                "key": "caterpie_icon",
+                "url": "caterpie.png"
+            },
+            {
+                "type": "image",
+                "key": "pidgey_icon",
+                "url": "pidgey.png"
+            },
+            {
+                "type": "image",
+                "key": "rattata_icon",
+                "url": "rattata.png"
+            },
+            {
+                "type": "image",
+                "key": "ekans_icon",
+                "url": "ekans.png"
+            },
+            {
+                "type": "image",
+                "key": "pichu_icon",
+                "url": "pichu.png"
+            },
+            {
+                "type": "image",
+                "key": "sandshrew_icon",
+                "url": "sandshrew.png"
+            },
+            {
+                "type": "image",
+                "key": "cleffa_icon",
+                "url": "cleffa.png"
+            },
+            {
+                "type": "image",
+                "key": "mankey_icon",
+                "url": "mankey.png"
+            },
+            {
+                "type": "image",
+                "key": "abra_icon",
+                "url": "abra.png"
+            },
+            {
+                "type": "image",
+                "key": "geodude_icon",
+                "url": "geodude.png"
+            },
+            {
+                "type": "image",
+                "key": "gastly_icon",
+                "url": "gastly.png"
+            },
+            {
+                "type": "image",
+                "key": "smoochum_icon",
+                "url": "smoochum.png"
+            },
+            {
+                "type": "image",
+                "key": "dratini_icon",
+                "url": "dratini.png"
+            },
+            {
+                "type": "image",
+                "key": "murkrow_icon",
+                "url": "murkrow.png"
+            },
+            {
+                "type": "image",
+                "key": "aron_icon",
+                "url": "aron.png"
+            }
+
+        ]
+    }
+   
+}

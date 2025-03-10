@@ -1,0 +1,99 @@
+{
+    "types":{
+        "path":"assets/images/type/icons",
+        "files": [
+            {
+                "type": "image",
+                "key": "water",
+                "url": "water.png"
+            },
+            {
+                "type": "image",
+                "key": "fire",
+                "url": "fire.png"
+            },
+            {
+                "type": "image",
+                "key": "grass",
+                "url": "grass.png"
+            },
+            {
+                "type": "image",
+                "key": "bug",
+                "url": "bug.png"
+            },
+            {
+                "type": "image",
+                "key": "flying",
+                "url": "flying.png"
+            },
+            {
+                "type": "image",
+                "key": "normal",
+                "url": "normal.png"
+            },
+            {
+                "type": "image",
+                "key": "dragon",
+                "url": "dragon.png"
+            },
+            {
+                "type": "image",
+                "key": "electric",
+                "url": "electric.png"
+            },
+            {
+                "type": "image",
+                "key": "psychic",
+                "url": "psychic.png"
+            },
+            {
+                "type": "image",
+                "key": "ground",
+                "url": "ground.png"
+            },
+            {
+                "type": "image",
+                "key": "fighting",
+                "url": "fighting.png"
+            },
+            {
+                "type": "image",
+                "key": "poison",
+                "url": "poison.png"
+            },
+            {
+                "type": "image",
+                "key": "ice",
+                "url": "ice.png"
+            },
+            {
+                "type": "image",
+                "key": "fairy",
+                "url": "fairy.png"
+            },
+            {
+                "type": "image",
+                "key": "dark",
+                "url": "dark.png"
+            },
+            {
+                "type": "image",
+                "key": "ghost",
+                "url": "ghost.png"
+            },
+            {
+                "type": "image",
+                "key": "steel",
+                "url": "steel.png"
+            },
+            {
+                "type": "image",
+                "key": "rock",
+                "url": "rock.png"
+            }
+
+        ]
+    }
+   
+}

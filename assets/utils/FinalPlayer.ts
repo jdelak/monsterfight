@@ -6,5 +6,5 @@ export interface FinalPlayer {
     hp: number;
     // elo:number;
     hero: Hero;
-    
+    wins:number;
 }

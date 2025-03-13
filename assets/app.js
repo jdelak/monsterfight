@@ -29,7 +29,7 @@ const config = {
     },
     scene: [
         // Boot,
-        // Preloader,
+        Preloader,
         MainScene,
         LobbyScene,
         HeroSelectionScene,

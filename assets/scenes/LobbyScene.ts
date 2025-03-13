@@ -7,7 +7,7 @@ export default class LobbyScene extends Phaser.Scene {
     public players: string[];
     private totalPlayers: number;
     private streamer: any;
-    private socket: WebSocket;
+    private socket: any;
 
     constructor() {
         super({ key: 'LobbyScene' });
@@ -18,8 +18,9 @@ export default class LobbyScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background1', 'assets/images/pokemon_background.png');
-        this.load.image('button', 'assets/images/round-rectangle-white.png');
+        this.load.setPath('assets');
+        this.load.image('background1', 'images/pokemon_background.png');
+        this.load.image('button', 'images/round-rectangle-white.png');
     }
 
     init(data: any) {

@@ -1,3 +1,5 @@
+import { TypeStack } from "./TypeStack";
+
 export const typeChart = {
     normal: { normal: 1, fire: 1, water: 1, electric: 1, grass: 1, ice: 1, fighting: 1, poison: 1, ground: 1, flying: 1, psychic: 1, bug: 1, rock: 0.5, ghost: 0, dragon: 1, dark: 1, steel: 0.5, fairy: 1 },
     fire: { normal: 1, fire: 0.5, water: 0.5, electric: 1, grass: 2, ice: 2, fighting: 1, poison: 1, ground: 1, flying: 1, psychic: 1, bug: 2, rock: 0.5, ghost: 1, dragon: 0.5, dark: 1, steel: 2, fairy: 1 },
@@ -46,3 +48,17 @@ export function getRandomTypes(count: number): PokemonType[] {
     const shuffled = Object.keys(typeChart) as PokemonType[];
     return shuffled.sort(() => 0.5 - Math.random()).slice(0, count);
 }
+
+export function getRandomSelectedTypes(count: number, types: PokemonType[]): PokemonType[]{
+    const shuffled = Object.values(types);
+    return shuffled.sort(() => 0.5 - Math.random()).slice(0, count);
+}
+
+export function setInitialStacks(types: PokemonType[]): TypeStack[]{
+    const finalArray:any = [];
+    types.forEach((type) =>{
+        finalArray.push({"type":type, "stack":0});
+    });
+
+    return finalArray;
+} 

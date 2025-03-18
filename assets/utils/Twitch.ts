@@ -62,7 +62,7 @@ export async function getViewerChoice(streamer: any, socket: WebSocket): Promise
                 const parts = message.split(' ');
                 const user = parts[0].split('!')[0].substring(1);
                 const text = parts.slice(3).join(' ').substring(1);
-                const availablechoices = ['!1', '!2', '!3', '!4'];
+                const availablechoices = ['!1', '!2', '!3'];
 
                 if (availablechoices.includes(text.trim())) {
                     const url = 'https://api.twitch.tv/helix/users';

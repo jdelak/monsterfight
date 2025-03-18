@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
-import { getRandomTypes } from '../utils/TypeChart';
+import { getRandomTypes, setInitialStacks } from '../utils/TypeChart';
 import { Hero, heroes, getHeroesForPlayer } from '../utils/HeroList';
+import { TypeStack } from '../utils/TypeStack';
 import { FinalPlayer } from '../utils/FinalPlayer';
 import { TwitchWebSocket } from '../utils/TwitchWebSocket';
 import { getViewerChoice, getStreamerData } from '../utils/Twitch';
@@ -14,6 +15,8 @@ export default class HeroSelectionScene extends Phaser.Scene {
     private socket: any;
     public countdown: number;
     public countdownText:any;
+    public types:any;
+    private initialStacks: TypeStack[];
 
     constructor() {
         super({ key: 'HeroSelectionScene' });
@@ -22,6 +25,8 @@ export default class HeroSelectionScene extends Phaser.Scene {
         this.finalPlayers = [];
         this.countdown = 35;
         this.countdownText = '';
+        this.types = '';
+        this.initialStacks = [];
     }
 
     preload() {
@@ -41,7 +46,10 @@ export default class HeroSelectionScene extends Phaser.Scene {
         this.add.image(0, 0, 'background1').setOrigin(0, 0);
         this.add.text(this.cameras.main.centerX, 32, 'Type !1, !2 or !3 to select you Pokémon !', { font: '32px Arial', color: '#ffffff' }).setOrigin(0.5);
         this.countdownText = this.add.text(this.cameras.main.centerX, 80,`${this.countdown}`, { font: '48px Arial', color: '#000000' }).setOrigin(0.5);   
+        
         const selectedTypes = getRandomTypes(9);
+        this.types = selectedTypes;
+        this.initialStacks = setInitialStacks(selectedTypes);
 
         this.players.forEach((player, index) => {
             const heroesForPlayer = getHeroesForPlayer(selectedTypes);
@@ -86,11 +94,18 @@ export default class HeroSelectionScene extends Phaser.Scene {
             const chosenHero = this.playerHeroes[player[0]][parseInt(player[1].substring(1)) - 1];
             let playerWithHero: FinalPlayer;
 
-            if(this.finalPlayers.find(p => p.playerName === player[0]) === undefined){
-                playerWithHero = {playerName:player[0],hp:30,hero:chosenHero,wins:0}
+            if (this.finalPlayers.find(p => p.playerName === player[0]) === undefined) {
+                playerWithHero = {
+                    playerName: player[0],
+                    hp: 30,
+                    hero: chosenHero,
+                    wins: 0,
+                    types: [],
+                    chosenType: { 'type': '', 'stack': 0 },
+                    typeStacks: this.cloneTypeStacks(this.initialStacks)
+                };
                 this.finalPlayers.push(playerWithHero);
             }
-
         }
     }
 
@@ -116,22 +131,33 @@ export default class HeroSelectionScene extends Phaser.Scene {
                 clearInterval(countdownInterval);
                 this.countdownText.destroy();
                 this.addFirstHeroToPlayers(this.players,this.finalPlayers)
-                this.scene.start('GamePrepScene', {players:this.finalPlayers});
+                this.scene.start('GamePrepScene', {players:this.finalPlayers, selectedTypes:this.types,phase:0});
             }
         }, 1000);
     }
 
-    addFirstHeroToPlayers(players:any[], finalPlayers:FinalPlayer[]){
+    addFirstHeroToPlayers(players: any[], finalPlayers: FinalPlayer[]) {
         const missingPlayers = players.filter(player =>
             !finalPlayers.some(finalPlayer => finalPlayer.playerName === player)
         );
 
-        missingPlayers.forEach(
-            player => {
-                const chosenHero = this.playerHeroes[player][0];
-                let playerWithHero = {playerName:player,hp:30,hero:chosenHero,wins:0}
-                this.finalPlayers.push(playerWithHero);
-            }
-        )
+        missingPlayers.forEach(player => {
+            const chosenHero = this.playerHeroes[player][0];
+            let playerWithHero = {
+                playerName: player,
+                hp: 30,
+                hero: chosenHero,
+                wins: 0,
+                types: [],
+                chosenType: { 'type': '', 'stack': 0 },
+                typeStacks: this.cloneTypeStacks(this.initialStacks)
+            };
+            this.finalPlayers.push(playerWithHero);
+        });
     }
+
+        // Méthode pour cloner typeStacks
+        cloneTypeStacks(typeStacks: TypeStack[]): TypeStack[] {
+            return typeStacks.map(stack => ({ ...stack }));
+        }
 }

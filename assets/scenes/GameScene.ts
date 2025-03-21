@@ -1,17 +1,27 @@
 import Phaser from 'phaser';
 
 export default class GameScene extends Phaser.Scene {
+
+    public players:any;
+    
     constructor() {
         super({ key: 'GameScene' });
     }
 
     preload() {
-        this.load.image('background', 'assets/images/backgrounds/bg1.png');
+        this.load.setPath('assets');
+        this.load.image('background', 'images/pokemon_background.png');
+        this.load.pack('pokemon_icons', 'datas/pokemon.json', 'pokemon_icons');
+        this.load.pack('types', 'datas/type.json', 'types');
+    }
+
+    init(data:any) {
+        this.players = data.players;
     }
 
     create() {
-        this.add.image(960, 540, 'background');
-
+        this.add.image(0, 0, 'background').setOrigin(0, 0);
+        console.log(this.players);
         // Ajoutez ici la logique pour afficher les combats entre les joueurs
 
 

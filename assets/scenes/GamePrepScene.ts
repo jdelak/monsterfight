@@ -26,6 +26,7 @@ export default class GamePrepScene extends Phaser.Scene {
         this.load.setPath('assets');
         this.load.image('background', 'images/pokemon_background.png');
         this.load.pack('pokemon_icons', 'datas/pokemon.json', 'pokemon_icons');
+        this.load.pack('types', 'datas/type.json', 'types');
     }
 
     init(data:any){
@@ -40,10 +41,22 @@ export default class GamePrepScene extends Phaser.Scene {
         this.countdownText = this.add.text(this.cameras.main.centerX, 80,`${this.countdown}`, { font: '48px Arial', color: '#000000' }).setOrigin(0.5);   
         
         let stackNumber = 8;
-       
         this.players.forEach((player:FinalPlayer, index:number) => {
             const typeChoice = getRandomSelectedTypes(3,this.types);
             const playerTypes:any = [];
+            //descending sort types
+            player.typeStacks.sort((a, b) => b.stack - a.stack);
+
+            //ui
+            this.add.text(240, 160 + index * 92, `${player.playerName} :`, { font: '24px Arial', color: '#ffffff' }).setOrigin(0.5);
+            let pokeIcon = this.add.image(128, 160 + index * 92,`${player.hero.name}_icon`).setOrigin(0.5);
+            pokeIcon.scale = 0.25;
+            
+            player.typeStacks.forEach((type, typeIndex) => {
+                let typeIcon = this.add.image(336 + typeIndex * 92, 160 + index * 92,`${type.type}`).setOrigin(0.5);
+                this.add.text(336 + typeIndex * 92, 160 + index * 92,`${type.stack}`, { font: '24px Arial', color: '#000000' }).setOrigin(0.5);
+                typeIcon.scale = 0.5;
+            });
             
             if(this.currentPhase > 0){
                 stackNumber = prepChoice[index];
@@ -54,6 +67,12 @@ export default class GamePrepScene extends Phaser.Scene {
             });
 
             player.types = playerTypes;
+            player.types.forEach((playerType, playerTypeIndex) => {
+                let typeIcon = this.add.image(1600 + playerTypeIndex * 92, 160 + index * 92,`${playerType.type}`).setOrigin(0.5);
+                this.add.text(1600 + playerTypeIndex * 92, 160 + index * 92,`${playerType.stack}`, { font: '24px Arial', color: '#000000' }).setOrigin(0.5);
+                typeIcon.scale = 0.5;
+            });
+
         });
     
         this.fetchStreamerData();
@@ -69,6 +88,19 @@ export default class GamePrepScene extends Phaser.Scene {
                 console.error("Erreur lors de la récupération des données du joueur:", error);
             });
         }
+
+        this.players.forEach((player:FinalPlayer, index:number) => {
+            //descending sort types
+            player.typeStacks.sort((a, b) => b.stack - a.stack);
+            //ui
+            player.typeStacks.forEach((type, typeIndex) => {
+                let typeIcon = this.add.image(336 + typeIndex * 92, 160 + index * 92,`${type.type}`).setOrigin(0.5);
+                this.add.text(336 + typeIndex * 92, 160 + index * 92,`${type.stack}`, { font: '24px Arial', color: '#000000' }).setOrigin(0.5);
+                typeIcon.scale = 0.5;
+            });
+            
+
+        });
     }
 
     startCountdown() {
@@ -79,10 +111,9 @@ export default class GamePrepScene extends Phaser.Scene {
                 clearInterval(countdownInterval);
                 this.countdownText.destroy();
                 this.addFirstTypeToPlayers(this.players)
-                // this.scene.start('GamePrepScene', {players:this.finalPlayers, selectedTypes:this.types,phase:0});
-                console.log(this.players);
+                
                 this.currentPhase++;
-                // this.scene.start('GamePrepScene', {players:this.players, selectedTypes:this.types,phase:this.currentPhase});
+                this.scene.start('GameScene', {players:this.players, selectedTypes:this.types,phase:this.currentPhase});
             }
         }, 1000);
     }
@@ -92,8 +123,7 @@ export default class GamePrepScene extends Phaser.Scene {
         players.forEach(player => {
             if ((player.chosenType.type == '') && (player.chosenType.stack == 0 )){
                 player.chosenType = player.types[0];
-                console.log(player.chosenType);
-                addStacks(player.chosenType.type,player.typeStacks,player.chosenType.stack)      
+                addStacks(player.chosenType.type,player.typeStacks,player.chosenType.stack);
             }
         })
 
@@ -103,7 +133,6 @@ export default class GamePrepScene extends Phaser.Scene {
         const playerObject = getPlayerByName(this.players, player[0]);
         if(playerObject != undefined) {
             playerObject.chosenType = playerObject.types[parseInt(player[1].substring(1)) - 1];
-            console.log(playerObject.chosenType);
             addStacks(playerObject.chosenType.type,playerObject.typeStacks,playerObject.chosenType.stack);
         }
         

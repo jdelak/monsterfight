@@ -23,7 +23,7 @@ export default class HeroSelectionScene extends Phaser.Scene {
         this.players = ['','','','','','','',''];
         //used in prep and battle scenes
         this.finalPlayers = [];
-        this.countdown = 35;
+        this.countdown = 30;
         this.countdownText = '';
         this.types = '';
         this.initialStacks = [];

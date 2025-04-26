@@ -1,5 +1,4 @@
-import { Hero } from "./HeroList";
-import { TypeStack } from "./TypeStack";
+import { Hero } from "../entities/Hero";
 
 export interface FinalPlayer {
     
@@ -8,9 +7,8 @@ export interface FinalPlayer {
     // elo:number;
     hero: Hero;
     wins:number;
-    types:any[];
-    chosenType:TypeStack;
-    typeStacks:TypeStack[];
+    availableStats:any;
+    selectedChoice:any;
 }
 
 export function getPlayerByName(players: FinalPlayer[], playerName: string): FinalPlayer | undefined {

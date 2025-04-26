@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { getRandomTypes, setInitialStacks } from '../utils/TypeChart';
-import { Hero, heroes, getHeroesForPlayer } from '../utils/HeroList';
-import { TypeStack } from '../utils/TypeStack';
+import { getRandomTypes } from '../utils/TypeChart';
+import { heroes, getHeroesForPlayer } from '../utils/HeroList';
+import { Hero } from '../entities/Hero';
 import { FinalPlayer } from '../utils/FinalPlayer';
 import { TwitchWebSocket } from '../utils/TwitchWebSocket';
 import { getViewerChoice, getStreamerData } from '../utils/Twitch';
@@ -16,7 +16,6 @@ export default class HeroSelectionScene extends Phaser.Scene {
     public countdown: number;
     public countdownText:any;
     public types:any;
-    private initialStacks: TypeStack[];
 
     constructor() {
         super({ key: 'HeroSelectionScene' });
@@ -26,7 +25,6 @@ export default class HeroSelectionScene extends Phaser.Scene {
         this.countdown = 30;
         this.countdownText = '';
         this.types = '';
-        this.initialStacks = [];
     }
 
     preload() {
@@ -49,7 +47,6 @@ export default class HeroSelectionScene extends Phaser.Scene {
         
         const selectedTypes = getRandomTypes(9);
         this.types = selectedTypes;
-        this.initialStacks = setInitialStacks(selectedTypes);
 
         this.players.forEach((player, index) => {
             const heroesForPlayer = getHeroesForPlayer(selectedTypes);
@@ -58,8 +55,12 @@ export default class HeroSelectionScene extends Phaser.Scene {
             this.add.text(200, 160 + index * 92, `${player} :`, { font: '24px Arial', color: '#ffffff' }).setOrigin(0.5);
 
             heroesForPlayer.forEach((hero, heroIndex) => {
-                let typeIcon = this.add.image((450 + heroIndex * 256) - 80, 160 + index * 92,`${hero.type}`).setOrigin(0.5);
-                let pokeIcon = this.add.image(450 + heroIndex * 256, 160 + index * 92,`${hero.name}_icon`).setOrigin(0.5);
+                if(hero.types[1]){
+                    let typeIcon2 = this.add.image((450 + heroIndex * 256 + 32), 160 + index * 92,`${hero.types[1]}`).setOrigin(0.5);
+                    typeIcon2.scale = 0.5;
+                }
+                let typeIcon = this.add.image((450 + heroIndex * 256), 160 + index * 92,`${hero.types[0]}`).setOrigin(0.5);
+                let pokeIcon = this.add.image(450 + heroIndex * 256 - 80, 160 + index * 92,`${hero.name.toLowerCase()}_icon`).setOrigin(0.5);
                 typeIcon.scale = 0.5;
                 pokeIcon.scale = 0.25;
                 
@@ -82,7 +83,7 @@ export default class HeroSelectionScene extends Phaser.Scene {
         //show selected hero
         this.finalPlayers.forEach((player, index) => {
             if(player.hero){
-                const selected = this.add.image(1440, 160 + index * 92,`${player.hero.name}_icon`).setOrigin(0.5);
+                const selected = this.add.image(1440, 160 + index * 92,`${player.hero.name.toLowerCase()}_icon`).setOrigin(0.5);
                 selected.scale = 0.25;
             }
         });
@@ -100,9 +101,8 @@ export default class HeroSelectionScene extends Phaser.Scene {
                     hp: 30,
                     hero: chosenHero,
                     wins: 0,
-                    types: [],
-                    chosenType: { 'type': '', 'stack': 0 },
-                    typeStacks: this.cloneTypeStacks(this.initialStacks)
+                    availableStats:[],
+                    selectedChoice:'',
                 };
                 this.finalPlayers.push(playerWithHero);
             }
@@ -148,16 +148,12 @@ export default class HeroSelectionScene extends Phaser.Scene {
                 hp: 30,
                 hero: chosenHero,
                 wins: 0,
-                types: [],
-                chosenType: { 'type': '', 'stack': 0 },
-                typeStacks: this.cloneTypeStacks(this.initialStacks)
+                availableStats:[],
+                selectedChoice:'',
+                currentStats:[]
             };
             this.finalPlayers.push(playerWithHero);
         });
     }
 
-        // Méthode pour cloner typeStacks
-        cloneTypeStacks(typeStacks: TypeStack[]): TypeStack[] {
-            return typeStacks.map(stack => ({ ...stack }));
-        }
 }

@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
-import { getRandomSelectedTypes } from '../utils/TypeChart';
 import { FinalPlayer, getPlayerByName } from '../utils/FinalPlayer';
-import { prepChoice, addStacks } from '../utils/TypeStack';
+import { initialChoices, statChoices } from '../utils/Choice';
 import { TwitchWebSocket } from '../utils/TwitchWebSocket';
 import { getViewerChoice, getStreamerData } from '../utils/Twitch';
+import { Hero } from '../entities/Hero';
 
 export default class GamePrepScene extends Phaser.Scene {
 
@@ -14,12 +14,16 @@ export default class GamePrepScene extends Phaser.Scene {
     private socket: any;
     public countdown: number;
     public countdownText:any;
+    public choices:any;
+    public statsContainer: Phaser.GameObjects.Container[];
 
     constructor() {
         super({ key: 'GamePrepScene' });
         this.currentPhase = 0;
         this.countdown = 15;
         this.countdownText = '';
+        this.choices = initialChoices[0];
+        this.statsContainer = [];
     }
 
     preload() {
@@ -39,38 +43,49 @@ export default class GamePrepScene extends Phaser.Scene {
         this.add.image(0, 0, 'background').setOrigin(0, 0);
         this.add.text(this.cameras.main.centerX, 32, 'Preparation Phase', { font: '32px Arial', color: '#ffffff' }).setOrigin(0.5);
         this.countdownText = this.add.text(this.cameras.main.centerX, 80,`${this.countdown}`, { font: '48px Arial', color: '#000000' }).setOrigin(0.5);   
-        
-        let stackNumber = 8;
-        this.players.forEach((player:FinalPlayer, index:number) => {
-            const typeChoice = getRandomSelectedTypes(3,this.types);
-            const playerTypes:any = [];
-            //descending sort types
-            player.typeStacks.sort((a, b) => b.stack - a.stack);
 
+        
+        const sortedPlayers = [...this.players].sort((a, b) => a.hp - b.hp);
+        if(this.currentPhase > 0){
+            this.players = sortedPlayers;
+        } 
+
+        this.players.forEach((player:FinalPlayer, index:number) => {
+
+            //on tire aléaoirement 3 amélioration de stats
+            if(this.currentPhase > 0){
+                const playerIndex = sortedPlayers.indexOf(player);
+                this.choices = statChoices[playerIndex];
+            }
+            const statEntries = Object.entries(this.choices); // transforme en tableau de [clé, valeur]
+            const shuffledStats = statEntries.sort(() => Math.random() - 0.5);
+            const selectedStats = shuffledStats.slice(0, 3);
+            player.availableStats = selectedStats;
+            
             //ui
             this.add.text(240, 160 + index * 92, `${player.playerName} :`, { font: '24px Arial', color: '#ffffff' }).setOrigin(0.5);
-            let pokeIcon = this.add.image(128, 160 + index * 92,`${player.hero.name}_icon`).setOrigin(0.5);
+            let pokeIcon = this.add.image(128, 160 + index * 92,`${player.hero.name.toLowerCase()}_icon`).setOrigin(0.5);
             pokeIcon.scale = 0.25;
+
+            //stat container
+            let playerContainer = this.add.container(400, 160 + index * 92);
+            let playerstats = [];
             
-            player.typeStacks.forEach((type, typeIndex) => {
-                let typeIcon = this.add.image(336 + typeIndex * 92, 160 + index * 92,`${type.type}`).setOrigin(0.5);
-                this.add.text(336 + typeIndex * 92, 160 + index * 92,`${type.stack}`, { font: '24px Arial', color: '#000000' }).setOrigin(0.5);
-                typeIcon.scale = 0.5;
-            });
-            
-            if(this.currentPhase > 0){
-                stackNumber = prepChoice[index];
-            } 
-           
-            typeChoice.forEach((type) => {
-                playerTypes.push({"type":type, "stack":stackNumber });
+            const attributs = ['level', 'base_hp', 'base_atk', 'base_def', 'base_def', 'ultimateDamage'] as (keyof Hero)[];
+
+            attributs.forEach((attribut, i) => {
+                let texte = this.add.text(i * 200, 0, `${attribut}: ${player.hero[attribut]}`, { font: '18px Arial', color: '#ffffff' }).setOrigin(0.5);
+                playerstats.push(texte);
+                playerContainer.add(texte);
             });
 
-            player.types = playerTypes;
-            player.types.forEach((playerType, playerTypeIndex) => {
-                let typeIcon = this.add.image(1600 + playerTypeIndex * 92, 160 + index * 92,`${playerType.type}`).setOrigin(0.5);
-                this.add.text(1600 + playerTypeIndex * 92, 160 + index * 92,`${playerType.stack}`, { font: '24px Arial', color: '#000000' }).setOrigin(0.5);
-                typeIcon.scale = 0.5;
+            this.statsContainer.push(playerContainer);
+
+            selectedStats.forEach(([statName, statValue], i) => {
+                this.add.text(1600, 160 + index * 92 + i * 20, `${statName} : +${statValue}`, {
+                    font: '18px Arial',
+                    color: '#ffff00'
+                }).setOrigin(0, 0.5);
             });
 
         });
@@ -83,24 +98,24 @@ export default class GamePrepScene extends Phaser.Scene {
     update(){
         if (this.streamer) {
             getViewerChoice(this.streamer, this.socket).then(choice => {
-                this.addStackToPlayer(choice);
+                this.applySelectedStatToPlayer(choice);
             }).catch(error => {
                 console.error("Erreur lors de la récupération des données du joueur:", error);
             });
         }
 
-        this.players.forEach((player:FinalPlayer, index:number) => {
-            //descending sort types
-            player.typeStacks.sort((a, b) => b.stack - a.stack);
-            //ui
-            player.typeStacks.forEach((type, typeIndex) => {
-                let typeIcon = this.add.image(336 + typeIndex * 92, 160 + index * 92,`${type.type}`).setOrigin(0.5);
-                this.add.text(336 + typeIndex * 92, 160 + index * 92,`${type.stack}`, { font: '24px Arial', color: '#000000' }).setOrigin(0.5);
-                typeIcon.scale = 0.5;
+        //on affiche les stats mis à jour
+        this.statsContainer.forEach(( container, playerIndex) => {
+            const player = this.players[playerIndex];
+            const attributs = ['level', 'base_hp', 'base_atk', 'base_def', 'base_def', 'ultimateDamage'] as (keyof Hero)[];
+            container.list.forEach((textAttribute, indexText) => {
+                if (textAttribute instanceof Phaser.GameObjects.Text) {
+                    const attribut = attributs[indexText];
+                    textAttribute.setText(`${attribut}: ${player.hero[attribut]}`);
+                }
             });
-            
-
         });
+
     }
 
     startCountdown() {
@@ -110,32 +125,56 @@ export default class GamePrepScene extends Phaser.Scene {
             if (this.countdown < 0) {
                 clearInterval(countdownInterval);
                 this.countdownText.destroy();
-                this.addFirstTypeToPlayers(this.players)
+                this.addFirstStatToPlayers(this.players)
                 
                 this.currentPhase++;
-                this.scene.start('GameScene', {players:this.players, selectedTypes:this.types,phase:this.currentPhase});
+                this.scene.start('GameScene', {players:this.players, phase:this.currentPhase});
             }
         }, 1000);
     }
 
-    addFirstTypeToPlayers(players:FinalPlayer[]){
+    addFirstStatToPlayers(players:FinalPlayer[]){
 
         players.forEach(player => {
-            if ((player.chosenType.type == '') && (player.chosenType.stack == 0 )){
-                player.chosenType = player.types[0];
-                addStacks(player.chosenType.type,player.typeStacks,player.chosenType.stack);
+            if (player.selectedChoice == ''){
+                const selected= player.availableStats[0];
+                this.addStat(selected, player);
             }
         })
 
     }
 
-    addStackToPlayer(player: [string, string]){
+    applySelectedStatToPlayer(player:[string,string]){
         const playerObject = getPlayerByName(this.players, player[0]);
         if(playerObject != undefined) {
-            playerObject.chosenType = playerObject.types[parseInt(player[1].substring(1)) - 1];
-            addStacks(playerObject.chosenType.type,playerObject.typeStacks,playerObject.chosenType.stack);
+            const selected = playerObject.availableStats[parseInt(player[1].substring(1)) - 1];
+            playerObject.selectedChoice = selected;
+            this.addStat(selected, playerObject);
         }
-        
+    }
+
+    addStat(selected:any, player:FinalPlayer){
+        const [statName, statValue] = selected;
+        switch (statName) {
+            case 'base_hp':
+                player.hero.base_hp += statValue;
+                break;
+            case 'base_atk':
+               player.hero.base_atk += statValue;
+                break;
+            case 'base_def':
+               player.hero.base_def += statValue;
+                break;
+            case 'base_attackSpeed':
+               player.hero.base_attackSpeed += statValue;
+                break;
+            case 'ultimate_damage':
+               player.hero.ultimateDamage += statValue;
+                break;
+        }
+    
+        // console.log(`${player.playerName} a choisi d'augmenter ${statName} de ${statValue}`);
+        // console.log('Stats après choix : ', player.hero);
     }
 
     async fetchStreamerData() {
@@ -143,7 +182,7 @@ export default class GamePrepScene extends Phaser.Scene {
             this.streamer = await getStreamerData();
             this.socket = TwitchWebSocket.getInstance(this.streamer);
             getViewerChoice(this.streamer, this.socket).then(choice => {
-                this.addStackToPlayer(choice);
+                this.applySelectedStatToPlayer(choice);
             }).catch(error => {
                 console.error("Erreur lors de la récupération des données du joueur:", error);
             });
